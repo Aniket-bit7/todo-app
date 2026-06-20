@@ -8,6 +8,8 @@ function App() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState('');
 
   // Fetch todos on component mount
   useEffect(() => {
@@ -76,7 +78,53 @@ function App() {
       setError('Could not update task status.');
     }
   };
-
+  const handleSaveEdit = async (id) => {
+    if (!editText.trim()) return;
+  
+    try {
+      const response = await fetch(`/api/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: editText,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to update todo');
+      }
+  
+      const updatedTodo = await response.json();
+  
+      setTodos(prev =>
+        prev.map(todo =>
+          todo.id === id ? updatedTodo : todo
+        )
+      );
+  
+      setEditingId(null);
+      setEditText('');
+    } catch (err) {
+      console.error(err);
+      setError('Could not update task.');
+    }
+  };
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditText('');
+  };
+  const handleEditKeyDown = (e, id) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveEdit(id);
+    }
+  
+    if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
   const handleDeleteTodo = async (id) => {
     try {
       const response = await fetch(`/api/todos/${id}`, {
@@ -245,9 +293,20 @@ function App() {
                     onChange={() => handleToggleTodo(todo.id, todo.completed)}
                   />
                   <span className="checkmark"></span>
-                </label>
-                <div className="task-content">
+                                </label>
+                                <div className="task-content">
+                                {editingId === todo.id ? (
+                  <input
+                    type="text"
+                    value={editText}
+                    autoFocus
+                    className="todo-input"
+                    onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => handleEditKeyDown(e, todo.id)}
+                  />
+                ) : (
                   <span className="task-text">{todo.text}</span>
+                )}
                   <div className="task-meta">
                     <span className={`badge badge-${todo.priority.toLowerCase()}`}>
                       {todo.priority}
@@ -257,27 +316,66 @@ function App() {
                   </div>
                 </div>
               </div>
+              <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center'
+            }}
+          >
+            {editingId === todo.id ? (
+              <>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleSaveEdit(todo.id)}
+                  title="Save"
+                >
+                  💾
+                </button>
+
+                <button
+                  className="delete-btn"
+                  onClick={handleCancelEdit}
+                  title="Cancel"
+                >
+                  ❌
+                </button>
+              </>
+            ) : (
               <button
                 className="delete-btn"
-                onClick={() => handleDeleteTodo(todo.id)}
-                title="Remove task"
+                onClick={() => {
+                  setEditingId(todo.id);
+                  setEditText(todo.text);
+                }}
+                title="Edit task"
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                  <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
+                ✏️
               </button>
+            )}
+
+            <button
+              className="delete-btn"
+              onClick={() => handleDeleteTodo(todo.id)}
+              title="Remove task"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
             </div>
           ))
         )}
