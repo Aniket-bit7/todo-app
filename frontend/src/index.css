@@ -236,7 +236,7 @@ body {
 }
 
 .refresh-button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   background: rgba(255,255,255,0.06);
 }
 
