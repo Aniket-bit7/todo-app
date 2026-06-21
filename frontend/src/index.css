@@ -225,6 +225,21 @@ body {
   transform: translateY(0);
 }
 
+/* Smaller secondary button for utility actions (e.g., Refresh) */
+.refresh-button {
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.refresh-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.06);
+}
+
 /* Filter & Search Bar */
 .filter-search-bar {
   display: flex;
