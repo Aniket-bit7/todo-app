@@ -185,6 +185,15 @@ function App() {
           <button type="submit" className="todo-button" disabled={loading}>
             Add Task
           </button>
+          <button
+            type="button"
+            className="todo-button refresh-button"
+            onClick={fetchTodos}
+            disabled={loading}
+            title="Refresh todos"
+          >
+            Refresh
+          </button>
         </div>
       </form>
 
