@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -7,8 +9,10 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-// In-memory data store for testing
-let todos = [
+const DATA_FILE = path.join(__dirname, 'data', 'todos.json');
+
+// Default initial todos
+const DEFAULT_TODOS = [
   {
     id: '1',
     text: 'Set up GitHub repository and issues',
@@ -32,6 +36,44 @@ let todos = [
   }
 ];
 
+// Helper to load todos from file
+function loadTodos() {
+  try {
+    // Ensure the data directory exists
+    const dir = path.dirname(DATA_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    if (!fs.existsSync(DATA_FILE)) {
+      fs.writeFileSync(DATA_FILE, JSON.stringify(DEFAULT_TODOS, null, 2), 'utf8');
+      return DEFAULT_TODOS;
+    }
+
+    const data = fs.readFileSync(DATA_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading/parsing todos file, using defaults:', err);
+    return DEFAULT_TODOS;
+  }
+}
+
+// Helper to save todos to file
+function saveTodos(data) {
+  try {
+    const dir = path.dirname(DATA_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error saving todos to file:', err);
+  }
+}
+
+// Load initial data
+let todos = loadTodos();
+
 // Get all todos
 app.get('/api/todos', (req, res) => {
   res.json(todos);
@@ -53,6 +95,7 @@ app.post('/api/todos', (req, res) => {
   };
 
   todos.push(newTodo);
+  saveTodos(todos);
   res.status(201).json(newTodo);
 });
 
@@ -74,6 +117,7 @@ app.put('/api/todos/:id', (req, res) => {
     priority: priority !== undefined ? priority : currentTodo.priority
   };
 
+  saveTodos(todos);
   res.json(todos[todoIndex]);
 });
 
@@ -86,9 +130,11 @@ app.delete('/api/todos/:id', (req, res) => {
   }
 
   const deletedTodo = todos.splice(todoIndex, 1);
+  saveTodos(todos);
   res.json({ message: 'Todo deleted successfully', todo: deletedTodo[0] });
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Todo backend server running on http://localhost:${PORT}`);
 });
+
