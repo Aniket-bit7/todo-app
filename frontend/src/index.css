@@ -530,3 +530,42 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Search and clear group layout */
+.search-clear-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clear-completed-btn {
+  background: rgba(244, 63, 94, 0.06);
+  border: 1px solid rgba(244, 63, 94, 0.18);
+  color: #f43f5e;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clear-completed-btn:hover:not(:disabled) {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+}
+
+.clear-completed-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.clear-completed-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,12 +1,5 @@
 [
   {
-    "id": "1",
-    "text": "Set up GitHub repository and issues",
-    "completed": true,
-    "priority": "High",
-    "createdAt": "2026-06-20T07:40:18.371Z"
-  },
-  {
     "id": "2",
     "text": "Configure Jira workflows",
     "completed": false,

@@ -94,6 +94,27 @@ function App() {
     }
   };
 
+  const handleClearCompleted = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/todos/clear-completed', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to clear completed todos');
+      }
+
+      setTodos(prev => prev.filter(t => !t.completed));
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError('Could not clear completed tasks.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Stats calculation
   const totalTasks = todos.length;
   const completedTasks = todos.filter(t => t.completed).length;
@@ -219,13 +240,39 @@ function App() {
             Completed
           </button>
         </div>
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search task registry..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="search-clear-group">
+          {completedTasks > 0 && (
+            <button
+              id="clear-completed-btn"
+              className="clear-completed-btn"
+              onClick={handleClearCompleted}
+              disabled={loading}
+              title="Delete all completed tasks"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Clear Completed
+            </button>
+          )}
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search task registry..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Todo List */}

@@ -134,6 +134,15 @@ app.delete('/api/todos/:id', (req, res) => {
   res.json({ message: 'Todo deleted successfully', todo: deletedTodo[0] });
 });
 
+// Clear all completed todos
+app.post('/api/todos/clear-completed', (req, res) => {
+  const initialLength = todos.length;
+  todos = todos.filter(t => !t.completed);
+  const deletedCount = initialLength - todos.length;
+  saveTodos(todos);
+  res.json({ message: `${deletedCount} completed tasks deleted successfully`, deletedCount });
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Todo backend server running on http://localhost:${PORT}`);
 });
